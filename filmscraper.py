@@ -42,9 +42,19 @@ while current_url:
         except AttributeError as e:
             actors = None
         try:
-            plot = box.find("span", string= "Plot: ").next_sibling.strip()
+            plot = box.find("span", string="Plot: ")
+            plot_lines = []
+            for sibling in plot.next_siblings:
+                if sibling.name == 'br':
+                    continue
+                if isinstance(sibling, str):
+                    line = sibling.strip()
+                    if line:
+                        plot_lines.append(line)
+            description = " ".join(plot_lines)
         except AttributeError as e:
-            plot = None
+            description = None
+
         all_films.append({
             'rank': rank,
             'film_title' : title,
@@ -55,7 +65,7 @@ while current_url:
             'mpaa_rating': mpaa_rating,
             'director': director,
             'actors':actors,
-            'plot_summary': plot,
+            'plot_summary': description,
         })
     navbar = soup.find("nav", attrs={"aria-label": "Page results navigation"})
     next_link = navbar.find("a", string="Next") if navbar else None
